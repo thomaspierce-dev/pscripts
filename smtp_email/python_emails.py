@@ -1,7 +1,10 @@
 # sending emails with python
 # using smtplib
 
-import smtplib, ssl
+import email, smtplib, ssl
+
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -9,12 +12,12 @@ from email.mime.multipart import MIMEMultipart
 smtp_server = 'smtp.gmail.com'
 port = 465
 
-sender = 'mailerpytester@gmail.com'
+sender = input('Enter sender email here: ')
 password = input('Enter your password here: ')
-receiver = 'tpierce65@gmail.com'
+receiver = input('Enter recipient email here: ')
 
 message = MIMEMultipart('alternative')
-message['subject'] = 'Multipart Test'
+message['subject'] = 'Cookies!'
 message['From'] = sender
 message['To'] = receiver
 
@@ -38,8 +41,23 @@ html = """\
 part1 = MIMEText(text, 'plain')
 part2 = MIMEText(html, 'html')
 
+filename = input("Do you have a file attachment? Please type filename here: ")
+if filename:
+    with open(filename, 'rb') as attachment:
+        part_a = MIMEBase('application', 'octet-stream')
+        part_a.set_payload(attachment.read())
+        encoders.encode_base64(part_a)
+        part_a.add_header(
+            'Content-Disposition',
+            "attachment; filename = {}".format(filename),
+        )
+        message.attach(part_a)
+
+
+
 message.attach(part1)
 message.attach(part2)
+
 
 
 context = ssl.create_default_context()
